@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{28A52F16-521A-4421-B851-CA6F7E174DC0}</ProjectGuid>
+    <RootNamespace>zyPKILib</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(ProjectDir)\..\..\src\thirdparty\mbedTLS\include\;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\..\..\bin</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(ProjectDir)\..\..\src\thirdparty\mbedTLS\include\;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\..\..\bin</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir)\..\..\src\thirdparty\mbedTLS\include\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)\..\..\src\thirdparty\mbedTLS\include\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\library\zypkilib.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\aes.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\aesni.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\arc4.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\asn1parse.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\asn1write.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\base64.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\bignum.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\blowfish.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\camellia.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ccm.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\certs.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\cipher.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\cipher_wrap.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ctr_drbg.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\debug.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\des.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\dhm.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecdh.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecdsa.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecp.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecp_curves.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\entropy.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\entropy_poll.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\error.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\gcm.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\havege.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\hmac_drbg.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md2.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md4.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md5.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md_wrap.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\memory_buffer_alloc.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\net.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\oid.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\padlock.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pbkdf2.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pem.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pk.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkcs11.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkcs12.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkcs5.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkparse.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkwrite.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pk_wrap.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\platform.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ripemd160.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\rsa.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\sha1.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\sha256.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\sha512.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_cache.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_ciphersuites.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_cli.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_srv.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_tls.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\threading.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\timing.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\version.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\version_features.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509write_crt.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509write_csr.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509_create.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509_crl.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509_crt.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509_csr.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\xtea.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\library\zypkilib.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

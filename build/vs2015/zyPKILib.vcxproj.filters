@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="thirdparty">
+      <UniqueIdentifier>{57e743a3-f9bd-4f16-bc7e-0cddfb936a45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\mbedTLS">
+      <UniqueIdentifier>{cf4046e5-6f1d-4992-bcce-3151be508583}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\aes.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\aesni.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\arc4.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\asn1parse.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\asn1write.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\base64.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\bignum.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\blowfish.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\camellia.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ccm.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\certs.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\cipher.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\cipher_wrap.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ctr_drbg.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\debug.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\des.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\dhm.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecdh.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecdsa.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecp.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecp_curves.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\entropy.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\entropy_poll.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\error.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\gcm.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\havege.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\hmac_drbg.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md_wrap.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md2.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md4.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md5.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\memory_buffer_alloc.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\net.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\oid.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\padlock.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pbkdf2.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pem.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pk.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pk_wrap.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkcs5.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkcs11.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkcs12.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkparse.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pkwrite.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\platform.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ripemd160.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\rsa.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\sha1.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\sha256.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\sha512.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_cache.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_ciphersuites.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_cli.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_srv.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_tls.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\threading.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\timing.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\version.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\version_features.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509_create.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509_crl.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509_crt.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509_csr.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509write_crt.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\x509write_csr.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\xtea.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\library\zypkilib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\library\zypkilib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
