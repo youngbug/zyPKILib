@@ -33,12 +33,16 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 	FILE *f;
 	int pub_len,pri_len;
 	//
-	if (ucAlgorithmType > ALG_TYPE_ECC_192_BIT || ucMode != 0 || ucMode != 1)
-	RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	if (ucAlgorithmType > ALG_TYPE_ECC_192_BIT)
+	{
+		return ZYPKI_ERR_PARAMETER;
+	}
 	//
 	/**
 	* 0.准备工作
 	*/
+	pk_init(&key);
+	entropy_init(&entropy);
 	ret = ctr_drbg_init(&ctr_drbg, entropy_func, &entropy, (const unsigned char *)pers, strlen(pers));
 	RET_ERR(ret, ZYPKI_ERR_CRYPTO);
 	//
@@ -85,7 +89,7 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 	/**
 	* 2. 输出密钥对
 	*/
-	if ( 1 == ucMode & 0x10)  //第5bit为1 pem格式
+	if ( 1 == ucMode >> 4 & 0x01)  //第4bit为1 pem格式
 	{
 		ret = pk_write_key_pem(&key, prikey, sizeof(prikey));
 		RET_ERR(ret, ZYPKI_ERR_PEMENCODE);
@@ -103,7 +107,7 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 			return ZYPKI_ERR_DERENCODE;
 		}
 		pri_len = ret;
-		c_pub = prikey + sizeof(prikey) - pri_len;
+		c_pri = prikey + sizeof(prikey) - pri_len;
 		//
 		ret = pk_write_pubkey_der(&key, pubkey, sizeof(pubkey));
 		if (ret < 0)
@@ -117,7 +121,7 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 	/**
 	* 2.1 输出到缓冲区或者文件
 	*/
-	if (1 == ucMode & 0x01) //输出到文件
+	if (1 == ucMode & 0x01) //输出到文件 第0bit为1
 	{
 		f = fopen(prikey, "wb");
 		if (NULL == f)
@@ -143,8 +147,8 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 	}
 	else //输出到缓冲区
 	{
-		memcpy(prikey, pucPrivateKey, pri_len);
-		memcpy(pubkey, pucPublicKey, pub_len);
+		memcpy(pucPrivateKey, c_pri, pri_len);
+		memcpy(pucPublicKey, c_pub, pub_len);
 	}
 	return ZYPKI_ERR_SUCCESS;
 }
