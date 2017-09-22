@@ -7,12 +7,12 @@ Description: zypkilib 函数实现
 */
 
 #include "zypkilib.h"
-#include "polarssl/ecdsa.h"
-#include "polarssl/rsa.h"
-#include "polarssl/pk.h"
-#include "polarssl/entropy.h"
-#include "polarssl/ctr_drbg.h"
-#include "polarssl/x509_csr.h"
+#include "mbedtls/ecdsa.h"
+#include "mbedtls/rsa.h"
+#include "mbedtls/pk.h"
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/x509_csr.h"
 //
 #define RET_ERR(r,errcode)  if(r!=0) { return errcode;}
 //
@@ -22,10 +22,10 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 	int	ret;
 	int keysize;
 	int format;
-	pk_type_t pk_type;
-	pk_context key;
-	entropy_context entropy;
-	ctr_drbg_context ctr_drbg;
+	mbedtls_pk_type_t pk_type;
+	mbedtls_pk_context key;
+	mbedtls_entropy_context entropy;
+	mbedtls_ctr_drbg_context ctr_drbg;
 	const char *pers = "zy_gen_key";
 	unsigned char pubkey[16000];
 	unsigned char prikey[16000];
@@ -42,23 +42,23 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 	/**
 	* 0.准备工作
 	*/
-	pk_init(&key);
-	entropy_init(&entropy);
-	ret = ctr_drbg_init(&ctr_drbg, entropy_func, &entropy, (const unsigned char *)pers, strlen(pers));
+	mbedtls_pk_init(&key);
+	mbedtls_entropy_init(&entropy);
+	ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *)pers, strlen(pers));
 	RET_ERR(ret, ZYPKI_ERR_CRYPTO);
 	//
 	switch (ucAlgorithmType)
 	{
 		case ALG_TYPE_RSA_1024_BIT:
-			pk_type = POLARSSL_PK_RSA;
+			pk_type = MBEDTLS_PK_RSA;
 			keysize = 1024;
 			break;
 		case ALG_TYPE_RSA_2048_BIT:
-			pk_type = POLARSSL_PK_RSA;
+			pk_type = MBEDTLS_PK_RSA;
 			keysize = 2048;
 			break;
 		case ALG_TYPE_ECC_192_BIT:
-			pk_type = POLARSSL_PK_ECKEY;
+			pk_type = MBEDTLS_PK_ECKEY;
 			keysize = 192;
 			break;
 		default:
@@ -68,21 +68,21 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 	/**
 	* 1. 产生密钥对
 	*/
-	if (POLARSSL_PK_RSA == pk_type)
+	if (MBEDTLS_PK_RSA == pk_type)
 	{
-		ret = pk_init_ctx(&key, pk_info_from_type(POLARSSL_PK_RSA));
+		ret = mbedtls_pk_setup(&key, mbedtls_pk_info_from_type(MBEDTLS_PK_RSA));
 		RET_ERR(ret, ZYPKI_ERR_CRYPTO);
 		//
-		ret = rsa_gen_key(pk_rsa(key), ctr_drbg_random, &ctr_drbg, keysize, iPara);
+		ret = mbedtls_rsa_gen_key(mbedtls_pk_rsa(key), mbedtls_ctr_drbg_random, &ctr_drbg, keysize, iPara);
 		RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
 		//
 	}
-	else if (POLARSSL_PK_ECKEY == pk_type)
+	else if (MBEDTLS_PK_ECKEY == pk_type)
 	{
-		ret = pk_init_ctx(&key, pk_info_from_type(POLARSSL_PK_ECKEY));
+		ret = mbedtls_pk_setup(&key, mbedtls_pk_info_from_type(MBEDTLS_PK_ECKEY));
 		RET_ERR(ret, ZYPKI_ERR_CRYPTO);
 		//
-		ret = ecp_gen_key(iPara, pk_ec(key), ctr_drbg_random, &ctr_drbg);
+		ret = mbedtls_ecp_gen_key(iPara, mbedtls_pk_ec(key), mbedtls_ctr_drbg_random, &ctr_drbg);
 		RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
 		//
 	}
@@ -92,17 +92,17 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 	*/
 	if ( 1 == ucMode >> 4 & 0x01)  //第4bit为1 pem格式
 	{
-		ret = pk_write_key_pem(&key, prikey, sizeof(prikey));
+		ret = mbedtls_pk_write_key_pem(&key, prikey, sizeof(prikey));
 		RET_ERR(ret, ZYPKI_ERR_PEMENCODE);
 		pri_len = strlen((char *)prikey);
 		//
-		ret = pk_write_pubkey_pem(&key, pubkey, sizeof(pubkey));
+		ret = mbedtls_pk_write_pubkey_pem(&key, pubkey, sizeof(pubkey));
 		RET_ERR(ret, ZYPKI_ERR_PEMENCODE);
 		pub_len = strlen((char *)pubkey);
 	}
 	else //第5bit不为1 der格式
 	{
-		ret = pk_write_key_der(&key, prikey, sizeof(prikey));
+		ret = mbedtls_pk_write_key_der(&key, prikey, sizeof(prikey));
 		if (ret < 0)
 		{
 			return ZYPKI_ERR_DERENCODE;
@@ -110,7 +110,7 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 		pri_len = ret;
 		c_pri = prikey + sizeof(prikey) - pri_len;
 		//
-		ret = pk_write_pubkey_der(&key, pubkey, sizeof(pubkey));
+		ret = mbedtls_pk_write_pubkey_der(&key, pubkey, sizeof(pubkey));
 		if (ret < 0)
 		{
 			return ZYPKI_ERR_DERENCODE;
@@ -157,22 +157,22 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath)
 {
 	int ret = 0;
-	pk_context key;
+	mbedtls_pk_context key;
 	char buf[1024];
 	int i;
 	char *p, *q, *r;
-	x509write_csr req;
-	entropy_context entropy;
-	ctr_drbg_context ctr_drbg;
+	mbedtls_x509write_csr req;
+	mbedtls_entropy_context entropy;
+	mbedtls_ctr_drbg_context ctr_drbg;
 	const char *pers = "zy_csr";
 	//
-	x509write_csr_init(&req);
-	x509write_csr_set_md_alg(&req, POLARSSL_MD_SHA256);
-	pk_init(&key);
+	mbedtls_x509write_csr_init(&req);
+	mbedtls_x509write_csr_set_md_alg(&req, MBEDTLS_MD_SHA256);
+	mbedtls_pk_init(&key);
 	memset(buf, 0, sizeof(buf));
 	//
-	x509write_csr_set_key_usage(&req, pcsr_opt->ucKeyUsage);
-	x509write_csr_set_ns_cert_type(&req, pcsr_opt->ucNSCertType);
+	mbedtls_x509write_csr_set_key_usage(&req, pcsr_opt->ucKeyUsage);
+	mbedtls_x509write_csr_set_ns_cert_type(&req, pcsr_opt->ucNSCertType);
 	//
 
 	//

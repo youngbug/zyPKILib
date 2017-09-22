@@ -137,12 +137,14 @@
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\certs.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\cipher.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\cipher_wrap.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\cmac.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ctr_drbg.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\debug.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\des.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\dhm.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecdh.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecdsa.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecjpake.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecp.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecp_curves.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\entropy.c" />
@@ -158,6 +160,7 @@
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\md_wrap.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\memory_buffer_alloc.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\net.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\net_sockets.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\oid.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\padlock.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pbkdf2.c" />
@@ -178,7 +181,9 @@
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_cache.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_ciphersuites.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_cli.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_cookie.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_srv.c" />
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_ticket.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_tls.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\threading.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\timing.c" />

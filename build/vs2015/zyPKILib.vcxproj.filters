@@ -228,6 +228,21 @@
     <ClCompile Include="..\..\src\library\zypkilib.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\cmac.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ecjpake.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\net_sockets.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_cookie.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_ticket.c">
+      <Filter>thirdparty\mbedTLS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\library\zypkilib.h">
