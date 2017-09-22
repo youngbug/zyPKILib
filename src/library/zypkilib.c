@@ -12,6 +12,7 @@ Description: zypkilib º¯ÊýÊµÏÖ
 #include "polarssl/pk.h"
 #include "polarssl/entropy.h"
 #include "polarssl/ctr_drbg.h"
+#include "polarssl/x509_csr.h"
 //
 #define RET_ERR(r,errcode)  if(r!=0) { return errcode;}
 //
@@ -155,5 +156,25 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 
 unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath)
 {
+	int ret = 0;
+	pk_context key;
+	char buf[1024];
+	int i;
+	char *p, *q, *r;
+	x509write_csr req;
+	entropy_context entropy;
+	ctr_drbg_context ctr_drbg;
+	const char *pers = "zy_csr";
+	//
+	x509write_csr_init(&req);
+	x509write_csr_set_md_alg(&req, POLARSSL_MD_SHA256);
+	pk_init(&key);
+	memset(buf, 0, sizeof(buf));
+	//
+	x509write_csr_set_key_usage(&req, pcsr_opt->ucKeyUsage);
+	x509write_csr_set_ns_cert_type(&req, pcsr_opt->ucNSCertType);
+	//
+
+	//
 	return 0;
 }
