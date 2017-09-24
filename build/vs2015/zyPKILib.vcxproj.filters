@@ -120,16 +120,10 @@
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\memory_buffer_alloc.c">
       <Filter>thirdparty\mbedTLS</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\net.c">
-      <Filter>thirdparty\mbedTLS</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\oid.c">
       <Filter>thirdparty\mbedTLS</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\padlock.c">
-      <Filter>thirdparty\mbedTLS</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pbkdf2.c">
       <Filter>thirdparty\mbedTLS</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\pem.c">

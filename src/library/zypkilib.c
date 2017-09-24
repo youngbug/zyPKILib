@@ -14,7 +14,7 @@ Description: zypkilib 函数实现
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/x509_csr.h"
 //
-#define RET_ERR(r,errcode)  if(r!=0) { return errcode;}
+#define RET_ERR(r,errcode)  if(r!=0) { ret = errcode; goto exit;}
 //
 //
 unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iPara, unsigned char ucMode, unsigned char * pucPublicKey, unsigned char * pucPrivateKey)
@@ -105,7 +105,8 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 		ret = mbedtls_pk_write_key_der(&key, prikey, sizeof(prikey));
 		if (ret < 0)
 		{
-			return ZYPKI_ERR_DERENCODE;
+			ret =  ZYPKI_ERR_DERENCODE;
+			goto exit;
 		}
 		pri_len = ret;
 		c_pri = prikey + sizeof(prikey) - pri_len;
@@ -113,7 +114,8 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 		ret = mbedtls_pk_write_pubkey_der(&key, pubkey, sizeof(pubkey));
 		if (ret < 0)
 		{
-			return ZYPKI_ERR_DERENCODE;
+			ret = ZYPKI_ERR_DERENCODE;
+			goto exit;
 		}
 		pub_len = ret;
 		c_pub = pubkey + sizeof(pubkey) - pub_len;
@@ -127,23 +129,27 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 		f = fopen(prikey, "wb");
 		if (NULL == f)
 		{
-			return	ZYPKI_ERR_FILEIO;
+			ret = ZYPKI_ERR_FILEIO;
+			goto exit;
 		}
 		if (fwrite(c_pri, 1, pri_len, f) != pri_len)
 		{
 			fclose(f);
-			return ZYPKI_ERR_FILEIO;
+			ret = ZYPKI_ERR_FILEIO;
+			goto exit;
 		}
 		//
 		f = fopen(pubkey, "wb");
 		if (NULL == f)
 		{
-			return	ZYPKI_ERR_FILEIO;
+			ret = ZYPKI_ERR_FILEIO;
+			goto exit;
 		}
 		if (fwrite(c_pub, 1, pub_len, f) != pub_len)
 		{
 			fclose(f);
-			return ZYPKI_ERR_FILEIO;
+			ret = ZYPKI_ERR_FILEIO;
+			goto exit;
 		}
 	}
 	else //输出到缓冲区
@@ -151,7 +157,13 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 		memcpy(pucPrivateKey, c_pri, pri_len);
 		memcpy(pucPublicKey, c_pub, pub_len);
 	}
-	return ZYPKI_ERR_SUCCESS;
+	ret = ZYPKI_ERR_SUCCESS;
+	//
+exit:
+	mbedtls_pk_free(&key);
+	mbedtls_ctr_drbg_free(&ctr_drbg);
+	mbedtls_entropy_free(&entropy);
+	return ret;
 }
 
 unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath)
@@ -174,7 +186,7 @@ unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFi
 	mbedtls_x509write_csr_set_key_usage(&req, pcsr_opt->ucKeyUsage);
 	mbedtls_x509write_csr_set_ns_cert_type(&req, pcsr_opt->ucNSCertType);
 	//
-
+	ret = mbedtls_x509write_csr_set_subject_name(&req, pcsr_opt->pcSubject);
 	//
 	return 0;
 }
