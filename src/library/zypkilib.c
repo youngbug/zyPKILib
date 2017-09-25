@@ -124,9 +124,9 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 	/**
 	* 2.1 输出到缓冲区或者文件
 	*/
-	if (1 == ucMode & 0x01) //输出到文件 第0bit为1
+	if (1 == (ucMode & 0x01)) //输出到文件 第0bit为1
 	{
-		f = fopen(prikey, "wb");
+		f = fopen(pucPrivateKey, "wb");
 		if (NULL == f)
 		{
 			ret = ZYPKI_ERR_FILEIO;
@@ -138,8 +138,9 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 			ret = ZYPKI_ERR_FILEIO;
 			goto exit;
 		}
+		fclose(f);
 		//
-		f = fopen(pubkey, "wb");
+		f = fopen(pucPublicKey, "wb");
 		if (NULL == f)
 		{
 			ret = ZYPKI_ERR_FILEIO;
@@ -151,6 +152,7 @@ unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iP
 			ret = ZYPKI_ERR_FILEIO;
 			goto exit;
 		}
+		fclose(f);
 	}
 	else //输出到缓冲区
 	{
@@ -166,17 +168,20 @@ exit:
 	return ret;
 }
 
-unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath)
+unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath, unsigned char* pucCSRBuffer)
 {
 	int ret = 0;
 	mbedtls_pk_context key;
 	char buf[1024];
+	unsigned char csr_buf[4096];
 	int i;
 	char *p, *q, *r;
 	mbedtls_x509write_csr req;
 	mbedtls_entropy_context entropy;
 	mbedtls_ctr_drbg_context ctr_drbg;
 	const char *pers = "zy_csr";
+	FILE *f;
+	size_t len = 0;
 	//
 	mbedtls_x509write_csr_init(&req);
 	mbedtls_x509write_csr_set_md_alg(&req, MBEDTLS_MD_SHA256);
@@ -185,8 +190,49 @@ unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFi
 	//
 	mbedtls_x509write_csr_set_key_usage(&req, pcsr_opt->ucKeyUsage);
 	mbedtls_x509write_csr_set_ns_cert_type(&req, pcsr_opt->ucNSCertType);
-	//
+	//0. Seed the PRNG
+	mbedtls_entropy_init(&entropy);
+	ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *)pers, strlen(pers));
+	RET_ERR(ret, ZYPKI_ERR_CRYPTO);
+	//1.设置Subject
 	ret = mbedtls_x509write_csr_set_subject_name(&req, pcsr_opt->pcSubject);
+	RET_ERR(ret, ZYPKI_ERR_CERTSUBJECT);
+	//2.Load the key
+	ret = mbedtls_pk_parse_keyfile(&key, pcsr_opt->keyfilepath, NULL);
+	RET_ERR(ret, ZYPKI_ERR_LOADPRIKEY);
+	//3.Set the key
+	mbedtls_x509write_csr_set_key(&req, &key);
+	//4.Gen CSR
+	ret = mbedtls_x509write_csr_pem(&req, csr_buf, 4096, mbedtls_ctr_drbg_random, &ctr_drbg);
+	RET_ERR(ret, ZYPKI_ERR_WRITECSR);
+	//5.1 检查csr文件路径是否存在,不存在直接输出到缓冲区
+	memcpy(pucCSRBuffer, csr_buf, 4096);
+	if (NULL == pcCsrFilePath)
+	{
+		ret = ZYPKI_ERR_SUCCESS;
+		goto exit;
+	}
+	//5.2 讲证书请求保存到文件中
+	len = strlen((char *)csr_buf);
+	f = fopen(pcCsrFilePath, "w");
+	if (NULL == f)
+	{
+		ret = ZYPKI_ERR_FILEIO;
+		goto exit;
+	}
+	if (fwrite(csr_buf, 1, len, f) != len)
+	{
+		ret = ZYPKI_ERR_FILEIO;
+		fclose(f);
+		goto exit;
+	}
+	fclose(f);
+	ret = ZYPKI_ERR_SUCCESS;
+exit:
+	mbedtls_x509write_csr_free(&req);
+	mbedtls_pk_free(&key);
+	mbedtls_ctr_drbg_free(&ctr_drbg);
+	mbedtls_entropy_free(&entropy);
 	//
-	return 0;
+	return ret;
 }

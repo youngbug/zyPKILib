@@ -75,7 +75,7 @@ _pucPrivateKey_ [in/out]
 zypki_gen_certsignreq用于生成证书签名请求的函数。  
 
 * **声明**  
-`unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath)
+unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath, unsigned char* pucCSRBuffer)
 `  
 
 * **参数**  
@@ -84,7 +84,10 @@ _pcsr_opt_ [in]
 指向一个csr_opt结构体的指针，制作证书请求的必要信息都需要提前保存在这个结构体里。
 
 _pcCsrFilePath_ [in]  
-传入证书请求文件的生成路径。
+传入证书请求文件的生成路径。如果不需要将证书请求保存到文件中，传入NULL。
+
+_pucCSRBuffer_ [out]  
+输出证书请求,大小不应小区4096字节
 
 * **返回值** 
 
