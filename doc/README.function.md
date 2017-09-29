@@ -3,9 +3,7 @@
 
 函数接口说明
 ===
-## 1. zypki_initialize
-
-## 2. zypki_gen_keypairs
+## 1. zypki_gen_keypairs
 zypki_gen_keypair用于产生一个非对称算法的密钥对并将密钥对输出到给定的缓冲区或者指定的文件中。
 * **声明**  
 
@@ -71,11 +69,12 @@ _pucPrivateKey_ [in/out]
 |ZYPKI_ERR_SUCCESS|成功|
 |ZYPKI_ERR_PARAMETER|参数错误|
 
-## 3.zypki_gen_certsignreq
+## 2.zypki_gen_certsignreq
 zypki_gen_certsignreq用于生成证书签名请求的函数。  
 
 * **声明**  
-unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath, unsigned char* pucCSRBuffer)
+
+`unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath, unsigned char* pucCSRBuffer)
 `  
 
 * **参数**  
@@ -94,3 +93,40 @@ _pucCSRBuffer_ [out]
 |返回值|说明|
 |-|-|
 |ZYPKI_ERR_SUCCESS|成功|
+
+## 3.zypki_sign_cert
+zypki_sign_cert用于签发数字证书  
+
+* **声明**
+
+`unsigned char __stdcall zypki_sign_cert(signcert_opt* psc_opt, char* pcCertFilePath, unsigned char* pucCertBuffer)`
+
+* **参数**  
+_psc_opt_ [in]  
+指向signcert_opt的结构体指针，用于配置签发数字证书的各种信息。有的信息不需要用户配置
+```
+typedef struct
+{
+	char*		pcIssuerCert; 
+	char*		pcCSRFilePath;
+	char*		pcSubjectKeyFilePath;
+	char*		pcIssuerKeyFilePath;
+	char*		pcSubjectPwd;
+	char*		pcIssuerPwd;
+	char*		pcSerial; 
+	char*		pcSubjectName;
+	char*		pcIssuerName;
+	int			iSelfSign; 
+	char*		pcNotBefore;
+	char*		pcNotAfter;
+	int			iIsCA;
+	int			iCAMaxPath;
+	unsigned char ucKeyUsage;
+	unsigned char ucNSCertType; 
+}signcert_opt;
+```
+_pcCertFilePath_ [in]  
+指向输出证书文件的路径，如果传入NULL，那么证书数据只输出到缓冲区pucCertBuffer中。
+
+_pucCertBuffer_ [out]  
+保存签发证书数据的缓冲区，空间一般不小区4096字节。

@@ -267,17 +267,17 @@ unsigned char __stdcall zypki_sign_cert(signcert_opt * psc_opt, char* pcCertFile
 	// 0. Seed the PRNG
 	mbedtls_entropy_init(&entropy);
 	ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *)pers, strlen(pers));
-		RET_ERR(ret, ZYPKI_ERR_CRYPTO);
+	RET_ERR(ret, ZYPKI_ERR_CRYPTO);
 	
 	//
 	ret = mbedtls_mpi_read_string(&serial, 10, psc_opt->pcSerial);
-		RET_ERR(ret, ZYPKI_ERR_SERIALNUM);
+	RET_ERR(ret, ZYPKI_ERR_SERIALNUM);
 	
 	//1.1 Load the CSR
 	if (!(psc_opt->iSelfSign) && strlen(psc_opt->pcCSRFilePath))
 	{
 		ret = mbedtls_x509_csr_parse_file(&csr, psc_opt->pcCSRFilePath);
-			RET_ERR(ret, ZYPKI_ERR_READCSR);
+		RET_ERR(ret, ZYPKI_ERR_READCSR);
 		
 		//
 		ret = mbedtls_x509_dn_gets(subject_name, sizeof(subject_name), &csr.subject);
@@ -295,10 +295,10 @@ unsigned char __stdcall zypki_sign_cert(signcert_opt * psc_opt, char* pcCertFile
 	if (/*!(psc_opt->iSelfSign) && */strlen(psc_opt->pcSubjectKeyFilePath))
 	{
 		ret = mbedtls_pk_parse_keyfile(&loaded_subject_key, psc_opt->pcSubjectKeyFilePath, psc_opt->pcSubjectPwd);
-			RET_ERR(ret, ZYPKI_ERR_LOADPRIKEY);
+		RET_ERR(ret, ZYPKI_ERR_LOADPRIKEY);
 		//
 		ret = mbedtls_pk_parse_keyfile(&loaded_issuer_key, psc_opt->pcIssuerKeyFilePath, psc_opt->pcIssuerPwd);
-			RET_ERR(ret, ZYPKI_ERR_LOADPRIKEY);
+		RET_ERR(ret, ZYPKI_ERR_LOADPRIKEY);
 	}
 	// 1.3 check issuer certificate match
 
@@ -315,31 +315,31 @@ unsigned char __stdcall zypki_sign_cert(signcert_opt * psc_opt, char* pcCertFile
 	//
 	// 1.0 Check the names for validity
 	ret = mbedtls_x509write_crt_set_subject_name(&crt, psc_opt->pcSubjectName);
-		RET_ERR(ret, ZYPKI_ERR_CERTSUBJECT);
+	RET_ERR(ret, ZYPKI_ERR_CERTSUBJECT);
 	//
 	ret = mbedtls_x509write_crt_set_issuer_name(&crt, psc_opt->pcIssuerName);
-		RET_ERR(ret, ZYPKI_ERR_ISSUER);
+	RET_ERR(ret, ZYPKI_ERR_ISSUER);
 	//
 	ret = mbedtls_x509write_crt_set_serial(&crt, &serial);
-		RET_ERR(ret, ZYPKI_ERR_SERIALNUM);
+	RET_ERR(ret, ZYPKI_ERR_SERIALNUM);
 	//
 	ret = mbedtls_x509write_crt_set_validity(&crt, psc_opt->pcNotBefore, psc_opt->pcNotAfter);
-		RET_ERR(ret, ZYPKI_ERR_INVALIDDATE);
+	RET_ERR(ret, ZYPKI_ERR_INVALIDDATE);
 	//Adding the Basic Constraints extension
 	ret = mbedtls_x509write_crt_set_basic_constraints(&crt, psc_opt->iIsCA, psc_opt->iCAMaxPath);
-		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	RET_ERR(ret, ZYPKI_ERR_PARAMETER);
 	//Adding the Subject Key Identifier
 	ret = mbedtls_x509write_crt_set_subject_key_identifier(&crt);
-		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	RET_ERR(ret, ZYPKI_ERR_PARAMETER);
 	// Adding the Authority Key Identifier
 	ret = mbedtls_x509write_crt_set_authority_key_identifier(&crt);
-		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	RET_ERR(ret, ZYPKI_ERR_PARAMETER);
 	//
 	ret = mbedtls_x509write_crt_set_key_usage(&crt, psc_opt->ucKeyUsage);
-		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	RET_ERR(ret, ZYPKI_ERR_PARAMETER);
 	//
 	ret = mbedtls_x509write_crt_set_ns_cert_type(&crt, psc_opt->ucNSCertType);
-		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	RET_ERR(ret, ZYPKI_ERR_PARAMETER);
 	//
 	ret = mbedtls_x509write_crt_pem(&crt, output_buf, 4096, mbedtls_ctr_drbg_random, &ctr_drbg);
 	if (ret < 0)
