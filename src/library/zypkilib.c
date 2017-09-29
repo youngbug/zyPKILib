@@ -13,6 +13,7 @@ Description: zypkilib 函数实现
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/x509_csr.h"
+#include "mbedtls/x509_crt.h"
 //
 #define RET_ERR(r,errcode)  if(r!=0) { ret = errcode; goto exit;}
 //
@@ -212,7 +213,7 @@ unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFi
 		ret = ZYPKI_ERR_SUCCESS;
 		goto exit;
 	}
-	//5.2 讲证书请求保存到文件中
+	//5.2 将证书请求保存到文件中
 	len = strlen((char *)csr_buf);
 	f = fopen(pcCsrFilePath, "w");
 	if (NULL == f)
@@ -234,5 +235,144 @@ exit:
 	mbedtls_ctr_drbg_free(&ctr_drbg);
 	mbedtls_entropy_free(&entropy);
 	//
+	return ret;
+}
+
+unsigned char __stdcall zypki_sign_cert(signcert_opt * psc_opt, char* pcCertFilePath, unsigned char * pucCertBuffer)
+{
+	int ret = 0;
+	mbedtls_mpi serial;
+	mbedtls_x509_crt issuer_crt;
+	mbedtls_pk_context loaded_issuer_key, loaded_subject_key;
+	mbedtls_pk_context *issuer_key = &loaded_issuer_key, *subject_key = &loaded_subject_key;
+	mbedtls_x509_csr csr;
+	char subject_name[256];
+	mbedtls_x509write_cert crt;
+	mbedtls_entropy_context entropy;
+	mbedtls_ctr_drbg_context ctr_drbg;
+	const char *pers = "zy sign cert";
+	FILE *f;
+	unsigned char output_buf[4096];
+	size_t len = 0;
+	// 0. Set 
+	mbedtls_x509write_crt_init(&crt);
+	mbedtls_x509write_crt_set_md_alg(&crt, MBEDTLS_MD_SHA256);
+	mbedtls_pk_init(&loaded_issuer_key);
+	mbedtls_pk_init(&loaded_subject_key);
+	mbedtls_mpi_init(&serial);
+	mbedtls_ctr_drbg_init(&ctr_drbg);
+	mbedtls_x509_csr_init(&csr);
+	mbedtls_x509_crt_init(&issuer_crt);
+	memset(subject_name, 0, sizeof(subject_name));
+	// 0. Seed the PRNG
+	mbedtls_entropy_init(&entropy);
+	ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *)pers, strlen(pers));
+		RET_ERR(ret, ZYPKI_ERR_CRYPTO);
+	
+	//
+	ret = mbedtls_mpi_read_string(&serial, 10, psc_opt->pcSerial);
+		RET_ERR(ret, ZYPKI_ERR_SERIALNUM);
+	
+	//1.1 Load the CSR
+	if (!(psc_opt->iSelfSign) && strlen(psc_opt->pcCSRFilePath))
+	{
+		ret = mbedtls_x509_csr_parse_file(&csr, psc_opt->pcCSRFilePath);
+			RET_ERR(ret, ZYPKI_ERR_READCSR);
+		
+		//
+		ret = mbedtls_x509_dn_gets(subject_name, sizeof(subject_name), &csr.subject);
+		if (ret < 0)
+		{
+			ret = ZYPKI_ERR_READCSR;
+			goto exit;
+		}
+		//
+		psc_opt->pcSubjectName = subject_name;
+		subject_key = &csr.pk;
+	}
+	// 1.2 Load the keys 
+	// mbedTLS的示例里这里要判断不是自签名，那自签名的issuerkey从哪装载？后面也没机会装载了啊？不判断是不是自签名合理一些吧？
+	if (/*!(psc_opt->iSelfSign) && */strlen(psc_opt->pcSubjectKeyFilePath))
+	{
+		ret = mbedtls_pk_parse_keyfile(&loaded_subject_key, psc_opt->pcSubjectKeyFilePath, psc_opt->pcSubjectPwd);
+			RET_ERR(ret, ZYPKI_ERR_LOADPRIKEY);
+		//
+		ret = mbedtls_pk_parse_keyfile(&loaded_issuer_key, psc_opt->pcIssuerKeyFilePath, psc_opt->pcIssuerPwd);
+			RET_ERR(ret, ZYPKI_ERR_LOADPRIKEY);
+	}
+	// 1.3 check issuer certificate match
+
+	// 1.4  if self sign certificate
+	if ( psc_opt->iSelfSign)
+	{
+		//自签名证书的签发机构名字就是subject name
+		psc_opt->pcSubjectName = psc_opt->pcIssuerName; 
+		subject_key = issuer_key;
+	}
+	//
+	mbedtls_x509write_crt_set_subject_key(&crt, subject_key);
+	mbedtls_x509write_crt_set_issuer_key(&crt, issuer_key);
+	//
+	// 1.0 Check the names for validity
+	ret = mbedtls_x509write_crt_set_subject_name(&crt, psc_opt->pcSubjectName);
+		RET_ERR(ret, ZYPKI_ERR_CERTSUBJECT);
+	//
+	ret = mbedtls_x509write_crt_set_issuer_name(&crt, psc_opt->pcIssuerName);
+		RET_ERR(ret, ZYPKI_ERR_ISSUER);
+	//
+	ret = mbedtls_x509write_crt_set_serial(&crt, &serial);
+		RET_ERR(ret, ZYPKI_ERR_SERIALNUM);
+	//
+	ret = mbedtls_x509write_crt_set_validity(&crt, psc_opt->pcNotBefore, psc_opt->pcNotAfter);
+		RET_ERR(ret, ZYPKI_ERR_INVALIDDATE);
+	//Adding the Basic Constraints extension
+	ret = mbedtls_x509write_crt_set_basic_constraints(&crt, psc_opt->iIsCA, psc_opt->iCAMaxPath);
+		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	//Adding the Subject Key Identifier
+	ret = mbedtls_x509write_crt_set_subject_key_identifier(&crt);
+		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	// Adding the Authority Key Identifier
+	ret = mbedtls_x509write_crt_set_authority_key_identifier(&crt);
+		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	//
+	ret = mbedtls_x509write_crt_set_key_usage(&crt, psc_opt->ucKeyUsage);
+		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	//
+	ret = mbedtls_x509write_crt_set_ns_cert_type(&crt, psc_opt->ucNSCertType);
+		RET_ERR(ret, ZYPKI_ERR_PARAMETER);
+	//
+	ret = mbedtls_x509write_crt_pem(&crt, output_buf, 4096, mbedtls_ctr_drbg_random, &ctr_drbg);
+	if (ret < 0)
+	{
+		ret = ZYPKI_ERR_SIGNCERT;
+		goto exit;
+	}
+	len = strlen((char*)output_buf);
+	memcpy(pucCertBuffer, output_buf, len);
+	if (NULL != pcCertFilePath)
+	{
+		f = fopen(pcCertFilePath, "w");
+		if (NULL == f)
+		{
+			fclose(f);
+			ret = ZYPKI_ERR_FILEIO;
+			goto exit;
+		}
+		if (fwrite(output_buf, 1, len, f) != len)
+		{
+			fclose(f);
+			ret = ZYPKI_ERR_FILEIO;
+			goto exit;
+		}
+		fclose(f);
+	}
+
+exit:
+	mbedtls_x509write_crt_free(&crt);
+	mbedtls_pk_free(&loaded_subject_key);
+	mbedtls_pk_free(&loaded_issuer_key);
+	mbedtls_mpi_free(&serial);
+	mbedtls_ctr_drbg_free(&ctr_drbg);
+	mbedtls_entropy_free(&entropy);
 	return ret;
 }

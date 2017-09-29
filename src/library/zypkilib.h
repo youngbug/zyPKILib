@@ -24,6 +24,11 @@ extern "C" {
 #define		ZYPKI_ERR_CERTSUBJECT		ZYPKI_ERR_BASE + 7			//证书Subject错误
 #define		ZYPKI_ERR_LOADPRIKEY		ZYPKI_ERR_BASE + 8			//加载私钥错误
 #define		ZYPKI_ERR_WRITECSR			ZYPKI_ERR_BASE + 9			//写CSR错误
+#define		ZYPKI_ERR_SERIALNUM			ZYPKI_ERR_BASE + 10			//serial num错误
+#define		ZYPKI_ERR_READCSR			ZYPKI_ERR_BASE + 11			//读CSR错误
+#define		ZYPKI_ERR_ISSUER			ZYPKI_ERR_BASE + 12			//Issuer错误
+#define		ZYPKI_ERR_INVALIDDATE		ZYPKI_ERR_BASE + 13			//错误的时间
+#define		ZYPKI_ERR_SIGNCERT			ZYPKI_ERR_BASE + 14			//签发证书失败
 
 //算法类型
 #define		ALG_TYPE_RSA_1024_BIT		1
@@ -68,10 +73,30 @@ typedef struct
 	char*			keyfilepath;
 }csr_opt;
 //
+typedef struct
+{
+	char*		pcIssuerCert; 
+	char*		pcCSRFilePath;
+	char*		pcSubjectKeyFilePath;
+	char*		pcIssuerKeyFilePath;
+	char*		pcSubjectPwd;
+	char*		pcIssuerPwd;
+	char*		pcSerial; 
+	char*		pcSubjectName;
+	char*		pcIssuerName;
+	int			iSelfSign; 
+	char*		pcNotBefore;
+	char*		pcNotAfter;
+	int			iIsCA;
+	int			iCAMaxPath;
+	unsigned char ucKeyUsage;
+	unsigned char ucNSCertType; 
+}signcert_opt;
+//
 unsigned char __stdcall zypki_initialize();
 unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iPara, unsigned char ucMode, unsigned char* pucPublicKey, unsigned char* pucPrivateKey);
 unsigned char __stdcall zypki_gen_certsignreq(csr_opt* pcsr_opt, char* pcCsrFilePath, unsigned char* pucCSRBuffer);
-
+unsigned char __stdcall zypki_sign_cert(signcert_opt* psc_opt, char* pcCertFilePath, unsigned char* pucCertBuffer);
 
 #ifdef __cplusplus
 }
