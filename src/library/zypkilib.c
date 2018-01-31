@@ -18,7 +18,7 @@ Description: zypkilib º¯ÊýÊµÏÖ
 #define RET_ERR(r,errcode)  if(r!=0) { ret = errcode; goto exit;}
 //
 //
-unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iPara, unsigned char ucMode, unsigned char * pucPublicKey, unsigned char * pucPrivateKey)
+unsigned int __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iPara, unsigned char ucMode, unsigned char * pucPublicKey, unsigned char * pucPrivateKey)
 {
 	int	ret;
 	int keysize;
@@ -169,7 +169,7 @@ exit:
 	return ret;
 }
 
-unsigned char __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath, unsigned char* pucCSRBuffer)
+unsigned int __stdcall zypki_gen_certsignreq(csr_opt * pcsr_opt, char * pcCsrFilePath, unsigned char* pucCSRBuffer)
 {
 	int ret = 0;
 	mbedtls_pk_context key;
@@ -238,7 +238,7 @@ exit:
 	return ret;
 }
 
-unsigned char __stdcall zypki_sign_cert(signcert_opt * psc_opt, char* pcCertFilePath, unsigned char * pucCertBuffer)
+unsigned int __stdcall zypki_sign_cert(signcert_opt * psc_opt, char* pcCertFilePath, unsigned char * pucCertBuffer)
 {
 	int ret = 0;
 	mbedtls_mpi serial;
@@ -375,4 +375,33 @@ exit:
 	mbedtls_ctr_drbg_free(&ctr_drbg);
 	mbedtls_entropy_free(&entropy);
 	return ret;
+}
+
+unsigned int __stdcall zypki_sm2_genkeypairs(unsigned char * pucPrivateKey, unsigned char * pucPublicKey)
+{
+	int ret;
+	mbedtls_ecdsa_context ctx;
+	mbedtls_entropy_context entropy;
+	mbedtls_ctr_drbg_context ctr_drbg;
+	const char *pers = "zy_ecdsa";
+	//
+	mbedtls_ecdsa_init(&ctx);
+	mbedtls_ctr_drbg_init(&ctr_drbg);
+	mbedtls_entropy_init(&entropy);
+	ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *)pers, strlen(pers));
+	RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
+	//MBEDTLS_ECP_DP_SECP192R1
+	ret = mbedtls_ecdsa_genkey(&ctx, MBEDTLS_ECP_DP_SECP256K1, mbedtls_ctr_drbg_random, &ctr_drbg);
+	//ret = mbedtls_ecdsa_genkey(&ctx, MBEDTLS_ECP_DP_SM2256, mbedtls_ctr_drbg_random, &ctr_drbg);
+	RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
+
+
+exit:
+	return 0;
+}
+
+unsigned int __stdcall zypki_sm2_sign(unsigned char ucHashAlgID, unsigned char * pucPrivateKey, unsigned char * pucData, unsigned int uiDataLen, unsigned char * pucSignature, unsigned int * puiSignatureLen)
+{
+
+	return 0;
 }

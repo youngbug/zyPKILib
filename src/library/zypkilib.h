@@ -93,10 +93,14 @@ typedef struct
 	unsigned char ucNSCertType; 
 }signcert_opt;
 //
-unsigned char __stdcall zypki_initialize();
-unsigned char __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iPara, unsigned char ucMode, unsigned char* pucPublicKey, unsigned char* pucPrivateKey);
-unsigned char __stdcall zypki_gen_certsignreq(csr_opt* pcsr_opt, char* pcCsrFilePath, unsigned char* pucCSRBuffer);
-unsigned char __stdcall zypki_sign_cert(signcert_opt* psc_opt, char* pcCertFilePath, unsigned char* pucCertBuffer);
+unsigned int __stdcall zypki_initialize();
+unsigned int __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iPara, unsigned char ucMode, unsigned char* pucPublicKey, unsigned char* pucPrivateKey);
+unsigned int __stdcall zypki_gen_certsignreq(csr_opt* pcsr_opt, char* pcCsrFilePath, unsigned char* pucCSRBuffer);
+unsigned int __stdcall zypki_sign_cert(signcert_opt* psc_opt, char* pcCertFilePath, unsigned char* pucCertBuffer);
+
+//
+unsigned int __stdcall zypki_sm2_genkeypairs(unsigned char* pucPrivateKey, unsigned char* pucPublicKey);
+unsigned int __stdcall zypki_sm2_sign(unsigned char ucHashAlgID, unsigned char* pucPrivateKey, unsigned char* pucData, unsigned int uiDataLen, unsigned char* pucSignature, unsigned int* puiSignatureLen);
 
 #ifdef __cplusplus
 }

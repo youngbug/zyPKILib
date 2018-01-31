@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cert_req", "..\..\example\c
 		{28A52F16-521A-4421-B851-CA6F7E174DC0} = {28A52F16-521A-4421-B851-CA6F7E174DC0}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sm2_test", "..\..\example\sm2_test\sm2_test.vcxproj", "{3AAA457A-DBA7-439C-A70B-38AA1F5EDF2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -34,6 +36,14 @@ Global
 		{9C553E34-07E1-45E3-A274-75A931C15342}.Release|x64.Build.0 = Release|x64
 		{9C553E34-07E1-45E3-A274-75A931C15342}.Release|x86.ActiveCfg = Release|Win32
 		{9C553E34-07E1-45E3-A274-75A931C15342}.Release|x86.Build.0 = Release|Win32
+		{3AAA457A-DBA7-439C-A70B-38AA1F5EDF2F}.Debug|x64.ActiveCfg = Debug|x64
+		{3AAA457A-DBA7-439C-A70B-38AA1F5EDF2F}.Debug|x64.Build.0 = Debug|x64
+		{3AAA457A-DBA7-439C-A70B-38AA1F5EDF2F}.Debug|x86.ActiveCfg = Debug|Win32
+		{3AAA457A-DBA7-439C-A70B-38AA1F5EDF2F}.Debug|x86.Build.0 = Debug|Win32
+		{3AAA457A-DBA7-439C-A70B-38AA1F5EDF2F}.Release|x64.ActiveCfg = Release|x64
+		{3AAA457A-DBA7-439C-A70B-38AA1F5EDF2F}.Release|x64.Build.0 = Release|x64
+		{3AAA457A-DBA7-439C-A70B-38AA1F5EDF2F}.Release|x86.ActiveCfg = Release|Win32
+		{3AAA457A-DBA7-439C-A70B-38AA1F5EDF2F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

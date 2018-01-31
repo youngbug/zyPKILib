@@ -102,6 +102,7 @@ zypki_sign_cert用于签发数字证书
 `unsigned char __stdcall zypki_sign_cert(signcert_opt* psc_opt, char* pcCertFilePath, unsigned char* pucCertBuffer)`
 
 * **参数**  
+
 _psc_opt_ [in]  
 指向signcert_opt的结构体指针，用于配置签发数字证书的各种信息。有的信息不需要用户配置
 ```
@@ -130,3 +131,36 @@ _pcCertFilePath_ [in]
 
 _pucCertBuffer_ [out]  
 保存签发证书数据的缓冲区，空间一般不小区4096字节。
+
+## 4.zypki_sm2_sign
+zypki_sm2_sign用于使用国密SM2算法进行数字签名
+
+* **声明**
+
+`unsigned char zypki_sm2_sign(unsigned char ucHashAlgID, unsigned char * pucPrivateKey, unsigned char * pucData, unsigned int uiDataLen, unsigned char * pucSignature, unsigned int * puiSignatureLen)`
+
+* **参数**  
+
+_ucHashAlgID_ [in]  
+签名所用哈希算法的ID。
+
+_pucPrivateKey_ [in]  
+SM2私钥。
+
+_pucData_ [in]  
+待签名数据。
+
+_uiDataLen_ [in]  
+待签名数据长度。
+
+_pucSignature_ [out]  
+数字签名值。
+
+_puiSignatureLen_ [out]  
+数字签名长度。
+
+* **返回值** 
+
+|返回值|说明|
+|-|-|
+|ZYPKI_ERR_SUCCESS|成功|
