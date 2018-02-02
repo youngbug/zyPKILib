@@ -1,0 +1,5 @@
+﻿  cert_req.c
+f:\mywork\pki\zypkilib\example\cert_req\cert_req.c(15): warning C4101: “pub”: 未引用的局部变量
+f:\mywork\pki\zypkilib\example\cert_req\cert_req.c(16): warning C4101: “pri”: 未引用的局部变量
+  cert_req.vcxproj -> F:\MyWork\PKI\zyPKILib\build\vs2015\Debug\cert_req.exe
+  cert_req.vcxproj -> F:\MyWork\PKI\zyPKILib\build\vs2015\Debug\cert_req.pdb (Full PDB)

@@ -1,17 +1,15 @@
+#include "sm2.h"
 /*
-FileName: cert_req.c
+FileName: sm2.c
 Author: 赵洋 cnrgc@163.com
 Version : 1.0
-Date: 2017.9.21
-Description: 产生证书请求文件CSR示例
+Date: 2018.2.1
+Description: 国密算法SM2 函数实现
 */
 
-#include "zypkilib.h"
-#include <stdio.h>
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/ecp.h"
-
 
 #define BYTES_TO_T_UINT_4( a, b, c, d )             \
     ( (mbedtls_mpi_uint) a <<  0 ) |                          \
@@ -25,6 +23,7 @@ Description: 产生证书请求文件CSR示例
 #define BYTES_TO_T_UINT_8( a, b, c, d, e, f, g, h ) \
     BYTES_TO_T_UINT_4( a, b, c, d ),                \
     BYTES_TO_T_UINT_4( e, f, g, h )
+
 /*
 * SM2椭圆曲线公钥密码算法推荐曲线参数
 */
@@ -66,27 +65,58 @@ static const mbedtls_mpi_uint sm2256_n[] = {
 };
 
 
-int sm2_sign()
+
+unsigned int zy_sm2_generate_keypairs(unsigned char * pucPrivateKey, unsigned char * pucPublicKey)
 {
-	unsigned int uiRet;
-	unsigned char Pubkey[64];
-	unsigned char Prikey[64];
-	memset(Pubkey, 0, 64);
-	memset(Prikey, 0, 64);
-	uiRet = zypki_sm2_genkeypairs(Prikey, Pubkey);
-	return 0;
-}
+	int ret;
+	mbedtls_entropy_context entropy;
+	mbedtls_ctr_drbg_context ctr_drbg;
+	//
+	mbedtls_mpi P;		//素数p
+	mbedtls_mpi A, B;	//系数a,b
+	mbedtls_mpi N;		//阶n
+	mbedtls_ecp_point G;//基点G
+	const char *pers = "zy_ecdsa";
+	static mbedtls_mpi_uint one[] = { 1 };
+	//
+	mbedtls_ctr_drbg_init(&ctr_drbg);
+	mbedtls_entropy_init(&entropy);
+	ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *)pers, strlen(pers));
+	//
+	mbedtls_mpi_init(&P); 
+	mbedtls_mpi_init(&A);
+	mbedtls_mpi_init(&B);
+	mbedtls_mpi_init(&N);
+	mbedtls_ecp_point_init(&G);
+	//
+	P.s = 1;
+	P.n = sizeof(sm2256_p) / sizeof(mbedtls_mpi_uint);
+	P.p = (mbedtls_mpi_uint*)sm2256_p;
+	//
+	A.s = 1;
+	A.n = sizeof(sm2256_a) / sizeof(mbedtls_mpi_uint);
+	A.p = (mbedtls_mpi_uint*)sm2256_a;
+	//
+	B.s = 1;
+	B.n = sizeof(sm2256_b) / sizeof(mbedtls_mpi_uint);
+	B.p = (mbedtls_mpi_uint*)sm2256_b;
+	//
+	N.s = 1;
+	N.n = sizeof(sm2256_n) / sizeof(mbedtls_mpi_uint);
+	N.p = (mbedtls_mpi_uint*)sm2256_n;
+	//
+	G.X.s = 1;
+	G.X.n = sizeof(sm2256_gx) / sizeof(mbedtls_mpi_uint);
+	G.X.p = (mbedtls_mpi_uint*)sm2256_gx;
+	//
+	G.Y.s = 1;
+	G.Y.n = sizeof(sm2256_gy) / sizeof(mbedtls_mpi_uint);
+	G.Y.p = (mbedtls_mpi_uint*)sm2256_gy;
+	//
+	G.Z.s = 1;
+	G.Z.n = 1;
+	G.Z.p = one;
+	//
 
-
-
-int main()
-{
-	int i;
-	unsigned char buf[1024];
-	memcpy(buf, sm2256_p, sizeof(sm2256_p));
-	for (i = sizeof(sm2256_p); i = 0; i--)
-	{
-		printf("%02X",buf[i]);
-	}
 	return 0;
 }

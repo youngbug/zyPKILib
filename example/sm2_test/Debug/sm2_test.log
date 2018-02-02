@@ -1,4 +1,0 @@
-﻿  sm2_test.c
-f:\mywork\pki\zypkilib\example\sm2_test\sm2_test.c(17): warning C4013: “memset”未定义；假设外部返回 int
-  sm2_test.vcxproj -> F:\MyWork\PKI\zyPKILib\build\vs2015\Debug\sm2_test.exe
-  sm2_test.vcxproj -> F:\MyWork\PKI\zyPKILib\build\vs2015\Debug\sm2_test.pdb (Full PDB)

@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\library\sm2.c" />
     <ClCompile Include="..\..\src\library\zypkilib.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\aes.c" />
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\aesni.c" />
@@ -197,6 +198,7 @@
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\xtea.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\library\sm2.h" />
     <ClInclude Include="..\..\src\library\zypkilib.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

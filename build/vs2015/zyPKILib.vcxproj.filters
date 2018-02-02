@@ -237,9 +237,15 @@
     <ClCompile Include="..\..\src\thirdparty\mbedTLS\library\ssl_ticket.c">
       <Filter>thirdparty\mbedTLS</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\library\sm2.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\library\zypkilib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\library\sm2.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

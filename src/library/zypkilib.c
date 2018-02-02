@@ -390,9 +390,7 @@ unsigned int __stdcall zypki_sm2_genkeypairs(unsigned char * pucPrivateKey, unsi
 	mbedtls_entropy_init(&entropy);
 	ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *)pers, strlen(pers));
 	RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
-	//MBEDTLS_ECP_DP_SECP192R1
-	ret = mbedtls_ecdsa_genkey(&ctx, MBEDTLS_ECP_DP_SECP256K1, mbedtls_ctr_drbg_random, &ctr_drbg);
-	//ret = mbedtls_ecdsa_genkey(&ctx, MBEDTLS_ECP_DP_SM2256, mbedtls_ctr_drbg_random, &ctr_drbg);
+	ret = mbedtls_ecdsa_genkey(&ctx, MBEDTLS_ECP_DP_SM2256, mbedtls_ctr_drbg_random, &ctr_drbg);
 	RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
 
 
