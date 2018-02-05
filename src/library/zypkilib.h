@@ -12,23 +12,34 @@ Description: zypkilib 函数声明
 extern "C" {
 #endif
 
+//哈希算法ID
+#define		ZYPKI_HASH_ALG_SHA1			1
+#define		ZYPKI_HASH_ALG_SHA256		2
+#define		ZYPKI_HASH_ALG_SHA512		3
+#define		ZYPKI_HASH_ALG_SM3			4
 //错误码
-#define		ZYPKI_ERR_BASE				0xF0000000
-#define		ZYPKI_ERR_SUCCESS			0							//成功
-#define		ZYPKI_ERR_PARAMETER			ZYPKI_ERR_BASE + 1			//参数错误
-#define		ZYPKI_ERR_CRYPTO			ZYPKI_ERR_BASE + 2			//加密算法库错
-#define		ZYPKI_ERR_GENKEYPAIRS		ZYPKI_ERR_BASE + 3			//产生密钥对错误
-#define		ZYPKI_ERR_DERENCODE			ZYPKI_ERR_BASE + 4			//der编码错误
-#define		ZYPKI_ERR_PEMENCODE			ZYPKI_ERR_BASE + 5			//pem编码错误
-#define		ZYPKI_ERR_FILEIO			ZYPKI_ERR_BASE + 6			//文件IO错误
-#define		ZYPKI_ERR_CERTSUBJECT		ZYPKI_ERR_BASE + 7			//证书Subject错误
-#define		ZYPKI_ERR_LOADPRIKEY		ZYPKI_ERR_BASE + 8			//加载私钥错误
-#define		ZYPKI_ERR_WRITECSR			ZYPKI_ERR_BASE + 9			//写CSR错误
-#define		ZYPKI_ERR_SERIALNUM			ZYPKI_ERR_BASE + 10			//serial num错误
-#define		ZYPKI_ERR_READCSR			ZYPKI_ERR_BASE + 11			//读CSR错误
-#define		ZYPKI_ERR_ISSUER			ZYPKI_ERR_BASE + 12			//Issuer错误
-#define		ZYPKI_ERR_INVALIDDATE		ZYPKI_ERR_BASE + 13			//错误的时间
-#define		ZYPKI_ERR_SIGNCERT			ZYPKI_ERR_BASE + 14			//签发证书失败
+#define		ZYPKI_ERR_BASE					0xF0000000
+#define		ZYPKI_ERR_SUCCESS				0							//成功
+#define		ZYPKI_ERR_PARAMETER				ZYPKI_ERR_BASE + 1			//参数错误
+#define		ZYPKI_ERR_CRYPTO				ZYPKI_ERR_BASE + 2			//加密算法库错
+#define		ZYPKI_ERR_GENKEYPAIRS			ZYPKI_ERR_BASE + 3			//产生密钥对错误
+#define		ZYPKI_ERR_DERENCODE				ZYPKI_ERR_BASE + 4			//der编码错误
+#define		ZYPKI_ERR_PEMENCODE				ZYPKI_ERR_BASE + 5			//pem编码错误
+#define		ZYPKI_ERR_FILEIO				ZYPKI_ERR_BASE + 6			//文件IO错误
+#define		ZYPKI_ERR_CERTSUBJECT			ZYPKI_ERR_BASE + 7			//证书Subject错误
+#define		ZYPKI_ERR_LOADPRIKEY			ZYPKI_ERR_BASE + 8			//加载私钥错误
+#define		ZYPKI_ERR_WRITECSR				ZYPKI_ERR_BASE + 9			//写CSR错误
+#define		ZYPKI_ERR_SERIALNUM				ZYPKI_ERR_BASE + 10			//serial num错误
+#define		ZYPKI_ERR_READCSR				ZYPKI_ERR_BASE + 11			//读CSR错误
+#define		ZYPKI_ERR_ISSUER				ZYPKI_ERR_BASE + 12			//Issuer错误
+#define		ZYPKI_ERR_INVALIDDATE			ZYPKI_ERR_BASE + 13			//错误的时间
+#define		ZYPKI_ERR_SIGNCERT				ZYPKI_ERR_BASE + 14			//签发证书失败
+#define		ZYPKI_ERR_LOAD_SM2ECGROUP		ZYPKI_ERR_BASE + 15			//装载SM2椭圆曲线失败
+#define		ZYPKI_ERR_LOAD_SM2KEY			ZYPKI_ERR_BASE + 16			//装载SM2密钥失败
+#define		ZYPKI_ERR_READ_BIGNUM			ZYPKI_ERR_BASE + 17			//读大数错误
+#define		ZYPKI_ERR_UNSUPPORTEDHASHALG    ZYPKI_ERR_BASE + 18			//不支持的杂凑算法
+#define		ZYPKI_ERR_MALLOC				ZYPKI_ERR_BASE + 19			//申请内存失败
+#define		ZYPKI_ERR_SM2SIGN				ZYPKI_ERR_BASE + 20			//SM2签名失败
 
 //算法类型
 #define		ALG_TYPE_RSA_1024_BIT		1
@@ -92,6 +103,7 @@ typedef struct
 	unsigned char ucKeyUsage;
 	unsigned char ucNSCertType; 
 }signcert_opt;
+
 //
 unsigned int __stdcall zypki_initialize();
 unsigned int __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iPara, unsigned char ucMode, unsigned char* pucPublicKey, unsigned char* pucPrivateKey);

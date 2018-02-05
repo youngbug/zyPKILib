@@ -5,7 +5,7 @@ Version : 1.0
 Date: 2017.9.21
 Description: zypkilib 函数实现
 */
-
+#include <Windows.h>
 #include "zypkilib.h"
 #include "mbedtls/ecdsa.h"
 #include "mbedtls/rsa.h"
@@ -14,6 +14,7 @@ Description: zypkilib 函数实现
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/x509_csr.h"
 #include "mbedtls/x509_crt.h"
+#include "mbedtls/sha256.h"
 //
 #define RET_ERR(r,errcode)  if(r!=0) { ret = errcode; goto exit;}
 //
@@ -380,6 +381,7 @@ exit:
 unsigned int __stdcall zypki_sm2_genkeypairs(unsigned char * pucPrivateKey, unsigned char * pucPublicKey)
 {
 	int ret;
+	int len;
 	mbedtls_ecdsa_context ctx;
 	mbedtls_entropy_context entropy;
 	mbedtls_ctr_drbg_context ctr_drbg;
@@ -392,14 +394,108 @@ unsigned int __stdcall zypki_sm2_genkeypairs(unsigned char * pucPrivateKey, unsi
 	RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
 	ret = mbedtls_ecdsa_genkey(&ctx, MBEDTLS_ECP_DP_SM2256, mbedtls_ctr_drbg_random, &ctr_drbg);
 	RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
-
-
+	//ret = mbedtls_ecp_point_write_binary(&ctx.grp, &ctx.Q, MBEDTLS_ECP_PF_UNCOMPRESSED, &len, pucPublicKey, 64);
+	ret = mbedtls_mpi_write_binary(&ctx.Q.X, pucPublicKey, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+	ret = mbedtls_mpi_write_binary(&ctx.Q.Y, pucPublicKey+32, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+	ret = mbedtls_mpi_write_binary(&ctx.d, pucPrivateKey, 32);
+	RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
 exit:
-	return 0;
+	return ret;
 }
 
 unsigned int __stdcall zypki_sm2_sign(unsigned char ucHashAlgID, unsigned char * pucPrivateKey, unsigned char * pucData, unsigned int uiDataLen, unsigned char * pucSignature, unsigned int * puiSignatureLen)
 {
-
-	return 0;
+	int ret;
+	mbedtls_ecdsa_context ctx;
+	unsigned char  Hash1[32];
+	unsigned char  Hash2[32];
+	unsigned char  T1[2+13+32*6];
+	unsigned char* T2;
+	unsigned char  IDA[] = { 0x63, 0x6E, 0x72, 0x67, 0x63, 0x40, 0x31, 0x36, 0x33, 0x2E, 0x63, 0x6F, 0x6D};
+	unsigned char  ENTLA[2] = {0x00, 0x68}; //cnrgc@163.com -- 0x68bit
+	unsigned char  Pub_X[32];
+	unsigned char  Pub_Y[32];
+	//直接从ctx中使用mpi读出来的数组字节序就是正确的，不需要逆序
+	unsigned char  a[32];
+	unsigned char  b[32];
+	unsigned char  Gx[32];
+	unsigned char  Gy[32];
+	mbedtls_mpi		r, s;
+	mbedtls_ecdsa_init(&ctx);
+	mbedtls_mpi_init(&r);
+	mbedtls_mpi_init(&s);
+	//1.先加载SM2椭圆曲线参数
+	ret = mbedtls_ecp_group_load(&ctx.grp, MBEDTLS_ECP_DP_SM2256);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2ECGROUP);
+	//2.将私钥加载
+	ret = mbedtls_mpi_read_binary(&ctx.d, pucPrivateKey, 32);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2KEY);
+	//3.将公钥算出来
+	ret = mbedtls_ecp_mul(&ctx.grp, &ctx.Q, &ctx.d, &ctx.grp.G, NULL, NULL);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2KEY);
+	//4.准备计算杂凑ZA的数据
+	ret = mbedtls_mpi_write_binary(&ctx.Q.X, Pub_X, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+	ret = mbedtls_mpi_write_binary(&ctx.Q.Y, Pub_Y, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+	ret = mbedtls_mpi_write_binary(&ctx.grp.A, a, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+	ret = mbedtls_mpi_write_binary(&ctx.grp.B, b, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+	ret = mbedtls_mpi_write_binary(&ctx.grp.G.X, Gx, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+	ret = mbedtls_mpi_write_binary(&ctx.grp.G.Y, Gy, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+	//5.算杂凑之ZA
+	//ZA=H256(ENTLA || IDA || a || b || xG || yG || xA || yA), IDA的位数是ENTLA, xG,yG是G点，xA,yA是公钥
+	//IDA: 636E726763403136332E636F6D "cnrgc@163.com"
+	memcpy(T1, ENTLA, 2);
+	memcpy(T1 + 2, IDA, 13);
+	memcpy(T1 + 2 + 13, a, 32);
+	memcpy(T1 + 2 + 13 + 32, b, 32);
+	memcpy(T1 + 2 + 13 + 32 + 32, Gx, 32);
+	memcpy(T1 + 2 + 13 + 32 + 32 + 32, Gy, 32);
+	memcpy(T1 + 2 + 13 + 32 + 32 + 32 + 32, Pub_X, 32);
+	memcpy(T1 + 2 + 13 + 32 + 32 + 32 + 32 + 32, Pub_Y, 32);
+	//
+	if (ZYPKI_HASH_ALG_SHA256 ==ucHashAlgID)
+	{
+		mbedtls_sha256(T1, 2 + 13 + 32 * 6, Hash1, 0);
+	}
+	else
+	{
+		RET_ERR(ret, ZYPKI_ERR_UNSUPPORTEDHASHALG);
+	}
+	//6.计算H256(ZA||M)
+	T2 = malloc(uiDataLen + 32);
+	if (NULL == T2)
+	{
+		RET_ERR(ret, ZYPKI_ERR_MALLOC);
+	}
+	memcpy(T2, Hash1, 32);
+	memcpy(T2 + 32, pucData, uiDataLen);
+	if (ZYPKI_HASH_ALG_SHA256 == ucHashAlgID)
+	{
+		mbedtls_sha256(T2, uiDataLen + 32, Hash2, 0);
+		//7.计算ECC签名
+		ret = mbedtls_ecdsa_sign_det(&ctx.grp, &r, &s, &ctx.d, Hash2, 32, MBEDTLS_MD_SHA256);
+		RET_ERR(ret, ZYPKI_ERR_SM2SIGN);
+	}
+	else
+	{
+		RET_ERR(ret, ZYPKI_ERR_UNSUPPORTEDHASHALG);
+	}
+	//8.把MPI的数据读出来
+	ret = mbedtls_mpi_write_binary(&r, pucSignature, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+	ret = mbedtls_mpi_write_binary(&s, pucSignature + 32, 32);
+	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
+exit:
+	free(T2);
+	mbedtls_mpi_free(&r);
+	mbedtls_mpi_free(&s);
+	mbedtls_ecdsa_free(&ctx);
+	return ret;
 }
