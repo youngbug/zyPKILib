@@ -572,7 +572,7 @@ unsigned int __stdcall zypki_sm2_verify(unsigned char* pucPublicKey, unsigned ch
 	ret = mbedtls_mpi_read_binary(&s, ECDSASignature.s, 32);
 	RET_ERR(ret, ZYPKI_ERR_SM2VERIFY);
 	//
-	ret = mbedtls_ecdsa_verify(&ctx.grp, pucData, uiDataLen, &ctx.Q, &r, &s);
+	ret = mbedtls_ecdsa_sm2_verify(&ctx.grp, pucData, uiDataLen, &ctx.Q, &r, &s);
 	RET_ERR(ret, ZYPKI_ERR_SM2VERIFY);
 exit:
 	return ret;

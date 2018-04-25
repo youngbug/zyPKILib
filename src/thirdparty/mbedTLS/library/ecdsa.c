@@ -66,7 +66,8 @@ cleanup:
 }
 /**
 * Compute ECDSA-SM2 signature of a hashed message
-* Auth:Zhao Yang cnrgc@163.com
+* Author: Zhao Yang cnrgc@163.com/sxzhaoyang@gmail.com
+* Data: April 25 2018
 */
 
 int mbedtls_ecdsa_sm2_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
@@ -156,6 +157,8 @@ cleanup:
 }
 /*
 * Deterministic Guomi SM2 signature wrapper
+* Author: Zhao Yang cnrgc@163.com/sxzhaoyang@gmail.com
+* Data: April 25 2018
 */
 int mbedtls_ecdsa_sm2_sign_det(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
 	const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
@@ -315,6 +318,82 @@ cleanup:
     return( ret );
 }
 #endif /* MBEDTLS_ECDSA_DETERMINISTIC */
+
+/*
+* Verify ECDSA Guomi SM2 signature of hashed message 
+* Author: Zhao Yang cnrgc@163.com/sxzhaoyang@gmail.com
+* Data: April 25 2018
+*/
+int mbedtls_ecdsa_sm2_verify(mbedtls_ecp_group *grp,
+	const unsigned char *buf, size_t blen,
+	const mbedtls_ecp_point *Q, const mbedtls_mpi *r, const mbedtls_mpi *s)
+{
+	int ret;
+	mbedtls_mpi e, s_inv, u1, u2, t, result;
+	mbedtls_ecp_point R;
+
+	mbedtls_ecp_point_init(&R);
+	mbedtls_mpi_init(&e); mbedtls_mpi_init(&s_inv); mbedtls_mpi_init(&u1); mbedtls_mpi_init(&u2);
+	mbedtls_mpi_init(&t); mbedtls_mpi_init(&result); 
+
+	/* Fail cleanly on curves such as Curve25519 that can't be used for ECDSA */
+	if (grp->N.p == NULL)
+		return(MBEDTLS_ERR_ECP_BAD_INPUT_DATA);
+
+	/*
+	* Step 1: make sure r and s are in range 1..n-1
+	*/
+	if (mbedtls_mpi_cmp_int(r, 1) < 0 || mbedtls_mpi_cmp_mpi(r, &grp->N) >= 0 ||
+		mbedtls_mpi_cmp_int(s, 1) < 0 || mbedtls_mpi_cmp_mpi(s, &grp->N) >= 0)
+	{
+		ret = MBEDTLS_ERR_ECP_VERIFY_FAILED;
+		goto cleanup;
+	}
+
+	/*
+	* Additional precaution: make sure Q is valid
+	*/
+	MBEDTLS_MPI_CHK(mbedtls_ecp_check_pubkey(grp, Q));
+
+	/*
+	* Step 3: derive MPI from hashed message
+	*/
+	MBEDTLS_MPI_CHK(derive_mpi(grp, &e, buf, blen));
+
+	/*
+	* Step 4: t = (r+s) mod n
+	*/
+	MBEDTLS_MPI_CHK(mbedtls_mpi_add_mpi(&t, r, s));
+	MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(&t, &t, &grp->N));
+	if (mbedtls_mpi_cmp_int(&t, 0) == 0)
+	{
+		ret = MBEDTLS_ERR_ECP_VERIFY_FAILED;
+		goto cleanup;
+	}
+	/*
+	* Step 5: (x,y) = sG + tQ
+	*/
+	MBEDTLS_MPI_CHK(mbedtls_ecp_muladd(grp, &R, s, &grp->G, &t, Q));
+	/*
+	* Step 6: result = (e+x) mod n
+	*/
+	MBEDTLS_MPI_CHK(mbedtls_mpi_add_mpi(&e, &e, &R.X));
+	MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(&result, &e, &grp->N));
+	/*
+	* Step 7: check if result.X (that is, result.X) is equal to r
+	**/
+	if (mbedtls_mpi_cmp_mpi(&result, r) != 0)
+	{
+		ret = MBEDTLS_ERR_ECP_VERIFY_FAILED;
+		goto cleanup;
+	}
+	//
+cleanup:
+	mbedtls_ecp_point_free(&R); 
+	mbedtls_mpi_free(&e); mbedtls_mpi_free(&s_inv); mbedtls_mpi_free(&u1); mbedtls_mpi_free(&u2);
+	mbedtls_mpi_free(&t); mbedtls_mpi_free(&result);
+	return(ret);
+}
 
 /*
  * Verify ECDSA signature of hashed message (SEC1 4.1.4)
