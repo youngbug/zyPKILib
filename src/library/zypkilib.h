@@ -40,6 +40,7 @@ extern "C" {
 #define		ZYPKI_ERR_UNSUPPORTEDHASHALG    ZYPKI_ERR_BASE + 18			//不支持的杂凑算法
 #define		ZYPKI_ERR_MALLOC				ZYPKI_ERR_BASE + 19			//申请内存失败
 #define		ZYPKI_ERR_SM2SIGN				ZYPKI_ERR_BASE + 20			//SM2签名失败
+#define		ZYPKI_ERR_SM2VERIFY				ZYPKI_ERR_BASE + 21			//SM2验证失败
 
 //算法类型
 #define		ALG_TYPE_RSA_1024_BIT		1
@@ -103,7 +104,14 @@ typedef struct
 	unsigned char ucKeyUsage;
 	unsigned char ucNSCertType; 
 }signcert_opt;
-
+//
+#define ECDSA_KEY_MAX_LEN	 64
+typedef struct
+{
+	int				iKeyBitLen;
+	unsigned char	s[ECDSA_KEY_MAX_LEN];
+	unsigned char	r[ECDSA_KEY_MAX_LEN];
+}ecdsa_signature;
 //
 unsigned int __stdcall zypki_initialize();
 unsigned int __stdcall zypki_gen_keypairs(unsigned char ucAlgorithmType, int iPara, unsigned char ucMode, unsigned char* pucPublicKey, unsigned char* pucPrivateKey);
@@ -113,6 +121,8 @@ unsigned int __stdcall zypki_sign_cert(signcert_opt* psc_opt, char* pcCertFilePa
 //
 unsigned int __stdcall zypki_sm2_genkeypairs(unsigned char* pucPrivateKey, unsigned char* pucPublicKey);
 unsigned int __stdcall zypki_sm2_sign(unsigned char ucHashAlgID, unsigned char* pucPrivateKey, unsigned char* pucData, unsigned int uiDataLen, unsigned char* pucSignature, unsigned int* puiSignatureLen);
+unsigned int __stdcall zypki_sm2_sign_without_hash(unsigned char ucHashAlgID, unsigned char* pucPrivateKey, unsigned char* pucData, unsigned int uiDataLen, ecdsa_signature* pECDSASignature);
+unsigned int __stdcall zypki_sm2_verify(unsigned char* pucPublicKey, unsigned char* pucData, unsigned int uiDataLen, ecdsa_signature ECDSASignature);
 
 #ifdef __cplusplus
 }

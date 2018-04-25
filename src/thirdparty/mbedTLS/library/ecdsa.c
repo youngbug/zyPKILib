@@ -64,7 +64,131 @@ static int derive_mpi( const mbedtls_ecp_group *grp, mbedtls_mpi *x,
 cleanup:
     return( ret );
 }
+/**
+* Compute ECDSA-SM2 signature of a hashed message
+* Auth:Zhao Yang cnrgc@163.com
+*/
 
+int mbedtls_ecdsa_sm2_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
+						const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
+						int(*f_rng)(void *, unsigned char *, size_t), void *p_rng)
+{
+	int ret, key_tries, sign_tries, blind_tries;
+	mbedtls_ecp_point R;
+	mbedtls_mpi  k, e, t, l, m;
+	/* Fail cleanly on curves such as Curve25519 that can't be used for ECDSA */
+	if (grp->N.p == NULL)
+		return(MBEDTLS_ERR_ECP_BAD_INPUT_DATA);
+
+	mbedtls_ecp_point_init(&R);
+	mbedtls_mpi_init(&k); mbedtls_mpi_init(&e); mbedtls_mpi_init(&t); mbedtls_mpi_init(&l);
+	mbedtls_mpi_init(&m);
+
+	sign_tries = 0;
+	do
+	{
+		/*
+		* Step 0: derive MPI from hashed message
+		*/
+		MBEDTLS_MPI_CHK(derive_mpi(grp, &e, buf, blen));
+		/*
+		*		Step 1-3:
+		*		set r = (e+x) mod n
+		*/
+		key_tries = 0;
+		do
+		{
+			MBEDTLS_MPI_CHK(mbedtls_ecp_gen_keypair(grp, &k, &R, f_rng, p_rng));
+			MBEDTLS_MPI_CHK(mbedtls_mpi_add_mpi(&l, &e, &R.X));
+			MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(r, &l, &grp->N));
+			
+			if (key_tries++ > 10)
+			{
+				ret = MBEDTLS_ERR_ECP_RANDOM_FAILED;
+				goto cleanup;
+			}
+			//r+k != n
+			MBEDTLS_MPI_CHK((mbedtls_mpi_add_mpi(&m, r, &k)));
+		} while ((mbedtls_mpi_cmp_int(r, 0) == 0)|| (mbedtls_mpi_cmp_mpi(&m, &grp->N) == 0));
+		/*
+		* Generate a random value to blind inv_mod in next step,
+		* avoiding a potential timing leak.
+		*/
+		blind_tries = 0;
+		do
+		{
+			size_t n_size = (grp->nbits + 7) / 8;
+			MBEDTLS_MPI_CHK(mbedtls_mpi_fill_random(&t, n_size, f_rng, p_rng));
+			MBEDTLS_MPI_CHK(mbedtls_mpi_shift_r(&t, 8 * n_size - grp->nbits));
+
+			/* See mbedtls_ecp_gen_keypair() */
+			if (++blind_tries > 30)
+				return(MBEDTLS_ERR_ECP_RANDOM_FAILED);
+		} while (mbedtls_mpi_cmp_int(&t, 1) < 0 ||
+			mbedtls_mpi_cmp_mpi(&t, &grp->N) >= 0);
+
+		/*
+		* Step 6: compute  s = ((1+d)^-1)*(k-r*d) mod n
+		* 
+		*/
+		MBEDTLS_MPI_CHK(mbedtls_mpi_mul_mpi(s, r, d)); //s = r*d
+		MBEDTLS_MPI_CHK(mbedtls_mpi_sub_mpi(s, &k, s));   //s = k - s
+		MBEDTLS_MPI_CHK(mbedtls_mpi_mul_mpi(s, s, &t));//s = s*t
+		MBEDTLS_MPI_CHK(mbedtls_mpi_add_int(&l, d, 1));//l = 1+d
+		MBEDTLS_MPI_CHK(mbedtls_mpi_mul_mpi(&l, &l, &t));//l=l*t
+		MBEDTLS_MPI_CHK(mbedtls_mpi_inv_mod(&l, &l, &grp->N));// l = l^-1
+		MBEDTLS_MPI_CHK(mbedtls_mpi_mul_mpi(s, s, &l));//s = s * l 
+		MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(s, s, &grp->N));//s mod n
+
+		if (sign_tries++ > 10)
+		{
+			ret = MBEDTLS_ERR_ECP_RANDOM_FAILED;
+			goto cleanup;
+		}
+		//
+	} while (mbedtls_mpi_cmp_int(&t, 1) < 0 ||
+		     mbedtls_mpi_cmp_mpi(&t, &grp->N) >= 0);
+cleanup:
+	mbedtls_ecp_point_free(&R);
+	mbedtls_mpi_free(&k); mbedtls_mpi_free(&e); mbedtls_mpi_free(&t);
+	mbedtls_mpi_free(&l); mbedtls_mpi_free(&m);
+	return (ret);
+}
+/*
+* Deterministic Guomi SM2 signature wrapper
+*/
+int mbedtls_ecdsa_sm2_sign_det(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
+	const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
+	mbedtls_md_type_t md_alg)
+{
+	int ret;
+	mbedtls_hmac_drbg_context rng_ctx;
+	unsigned char data[2 * MBEDTLS_ECP_MAX_BYTES];
+	size_t grp_len = (grp->nbits + 7) / 8;
+	const mbedtls_md_info_t *md_info;
+	mbedtls_mpi h;
+
+	if ((md_info = mbedtls_md_info_from_type(md_alg)) == NULL)
+		return(MBEDTLS_ERR_ECP_BAD_INPUT_DATA);
+
+	mbedtls_mpi_init(&h);
+	mbedtls_hmac_drbg_init(&rng_ctx);
+
+	/* Use private key and message hash (reduced) to initialize HMAC_DRBG */
+	MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary(d, data, grp_len));
+	MBEDTLS_MPI_CHK(derive_mpi(grp, &h, buf, blen));
+	MBEDTLS_MPI_CHK(mbedtls_mpi_write_binary(&h, data + grp_len, grp_len));
+	mbedtls_hmac_drbg_seed_buf(&rng_ctx, md_info, data, 2 * grp_len);
+
+	ret = mbedtls_ecdsa_sm2_sign(grp, r, s, d, buf, blen,
+		mbedtls_hmac_drbg_random, &rng_ctx);
+
+cleanup:
+	mbedtls_hmac_drbg_free(&rng_ctx);
+	mbedtls_mpi_free(&h);
+
+	return(ret);
+}
 /*
  * Compute ECDSA signature of a hashed message (SEC1 4.1.3)
  * Obviously, compared to SEC1 4.1.3, we skip step 4 (hash message)

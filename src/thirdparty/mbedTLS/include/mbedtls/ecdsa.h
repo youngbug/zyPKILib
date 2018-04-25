@@ -80,6 +80,10 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
                 const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
                 int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
 
+int mbedtls_ecdsa_sm2_sign(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
+				const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
+				int(*f_rng)(void *, unsigned char *, size_t), void *p_rng);
+
 #if defined(MBEDTLS_ECDSA_DETERMINISTIC)
 /**
  * \brief           Compute ECDSA signature of a previously hashed message,
@@ -103,6 +107,10 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
 int mbedtls_ecdsa_sign_det( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
                     const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
                     mbedtls_md_type_t md_alg );
+
+int mbedtls_ecdsa_sm2_sign_det(mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
+					const mbedtls_mpi *d, const unsigned char *buf, size_t blen,
+					mbedtls_md_type_t md_alg);
 #endif /* MBEDTLS_ECDSA_DETERMINISTIC */
 
 /**

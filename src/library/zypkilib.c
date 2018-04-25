@@ -15,6 +15,7 @@ Description: zypkilib 函数实现
 #include "mbedtls/x509_csr.h"
 #include "mbedtls/x509_crt.h"
 #include "mbedtls/sha256.h"
+#include "mbedtls/hmac_drbg.h"
 //
 #define RET_ERR(r,errcode)  if(r!=0) { ret = errcode; goto exit;}
 //
@@ -381,11 +382,12 @@ exit:
 unsigned int __stdcall zypki_sm2_genkeypairs(unsigned char * pucPrivateKey, unsigned char * pucPublicKey)
 {
 	int ret;
-	int len;
+	//int len;
 	mbedtls_ecdsa_context ctx;
 	mbedtls_entropy_context entropy;
 	mbedtls_ctr_drbg_context ctr_drbg;
 	const char *pers = "zy_ecdsa";
+	size_t  len;
 	//
 	mbedtls_ecdsa_init(&ctx);
 	mbedtls_ctr_drbg_init(&ctr_drbg);
@@ -395,11 +397,14 @@ unsigned int __stdcall zypki_sm2_genkeypairs(unsigned char * pucPrivateKey, unsi
 	ret = mbedtls_ecdsa_genkey(&ctx, MBEDTLS_ECP_DP_SM2256, mbedtls_ctr_drbg_random, &ctr_drbg);
 	RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
 	//ret = mbedtls_ecp_point_write_binary(&ctx.grp, &ctx.Q, MBEDTLS_ECP_PF_UNCOMPRESSED, &len, pucPublicKey, 64);
-	ret = mbedtls_mpi_write_binary(&ctx.Q.X, pucPublicKey, 32);
+	len = mbedtls_mpi_size(&ctx.Q.X);
+	ret = mbedtls_mpi_write_binary(&ctx.Q.X, pucPublicKey, len);
 	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
-	ret = mbedtls_mpi_write_binary(&ctx.Q.Y, pucPublicKey+32, 32);
+	len = mbedtls_mpi_size(&ctx.Q.Y);
+	ret = mbedtls_mpi_write_binary(&ctx.Q.Y, pucPublicKey+len, len);
 	RET_ERR(ret, ZYPKI_ERR_READ_BIGNUM);
-	ret = mbedtls_mpi_write_binary(&ctx.d, pucPrivateKey, 32);
+	len = mbedtls_mpi_size(&ctx.d);
+	ret = mbedtls_mpi_write_binary(&ctx.d, pucPrivateKey, len);
 	RET_ERR(ret, ZYPKI_ERR_GENKEYPAIRS);
 exit:
 	return ret;
@@ -497,5 +502,78 @@ exit:
 	mbedtls_mpi_free(&r);
 	mbedtls_mpi_free(&s);
 	mbedtls_ecdsa_free(&ctx);
+	return ret;
+}
+
+unsigned int __stdcall zypki_sm2_sign_without_hash(unsigned char ucHashAlgID, unsigned char * pucPrivateKey, unsigned char * pucData, unsigned int uiDataLen, ecdsa_signature * pECDSASignature)
+{
+	int ret;
+	mbedtls_ecdsa_context ctx;
+	mbedtls_mpi		r, s;
+	size_t			len;
+	mbedtls_ecdsa_init(&ctx);
+	mbedtls_mpi_init(&r);
+	mbedtls_mpi_init(&s);
+	//1.先加载SM2椭圆曲线参数
+	ret = mbedtls_ecp_group_load(&ctx.grp, MBEDTLS_ECP_DP_SM2256);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2ECGROUP);
+	//2.将私钥加载
+	ret = mbedtls_mpi_read_binary(&ctx.d, pucPrivateKey, pECDSASignature->iKeyBitLen / 8);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2KEY);
+	//3.将公钥算出来
+	ret = mbedtls_ecp_mul(&ctx.grp, &ctx.Q, &ctx.d, &ctx.grp.G, NULL, NULL);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2KEY);
+	if (ZYPKI_HASH_ALG_SHA256 == ucHashAlgID)
+	{
+		//4.计算ECC签名
+		ret = mbedtls_ecdsa_sm2_sign_det(&ctx.grp, &r, &s, &ctx.d, pucData, uiDataLen, MBEDTLS_MD_SHA256);
+		//
+		RET_ERR(ret, ZYPKI_ERR_SM2SIGN);
+	}
+	else
+	{
+		RET_ERR(ret, ZYPKI_ERR_UNSUPPORTEDHASHALG);
+	}
+	len = mbedtls_mpi_size(&r);
+	ret = mbedtls_mpi_write_binary(&r, pECDSASignature->r, len);
+	RET_ERR(ret, ZYPKI_ERR_SM2SIGN);
+	len = mbedtls_mpi_size(&s);
+	ret = mbedtls_mpi_write_binary(&s, pECDSASignature->s, len);
+	RET_ERR(ret, ZYPKI_ERR_SM2SIGN);
+exit:
+	mbedtls_mpi_free(&r);
+	mbedtls_mpi_free(&s);
+	mbedtls_ecdsa_free(&ctx);
+	return ret;
+}
+
+unsigned int __stdcall zypki_sm2_verify(unsigned char* pucPublicKey, unsigned char* pucData, unsigned int uiDataLen, ecdsa_signature ECDSASignature)
+{
+	int ret;
+	mbedtls_ecdsa_context ctx;
+	mbedtls_mpi		r, s;
+	mbedtls_ecdsa_init(&ctx);
+	mbedtls_mpi_init(&r);
+	mbedtls_mpi_init(&s);
+	//
+	//1.先加载SM2椭圆曲线参数
+	ret = mbedtls_ecp_group_load(&ctx.grp, MBEDTLS_ECP_DP_SM2256);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2ECGROUP);
+	//2.将公钥加载
+	ret = mbedtls_mpi_read_binary(&ctx.Q.X, pucPublicKey, 32);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2KEY);
+	ret = mbedtls_mpi_read_binary(&ctx.Q.Y, pucPublicKey + 32, 32);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2KEY);
+	ret = mbedtls_mpi_lset(&ctx.Q.Z, 1);
+	RET_ERR(ret, ZYPKI_ERR_LOAD_SM2KEY);
+	//3.读r,s
+	ret = mbedtls_mpi_read_binary(&r, ECDSASignature.r, 32);
+	RET_ERR(ret, ZYPKI_ERR_SM2VERIFY);
+	ret = mbedtls_mpi_read_binary(&s, ECDSASignature.s, 32);
+	RET_ERR(ret, ZYPKI_ERR_SM2VERIFY);
+	//
+	ret = mbedtls_ecdsa_verify(&ctx.grp, pucData, uiDataLen, &ctx.Q, &r, &s);
+	RET_ERR(ret, ZYPKI_ERR_SM2VERIFY);
+exit:
 	return ret;
 }
